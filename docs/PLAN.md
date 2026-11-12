@@ -60,19 +60,23 @@ ha-spotify-bridge/
 │   └── rootfs/
 │       ├── etc/services.d/librespot/run      # adds --backend pipe --device FIFO --format S16 --volume-ctrl fixed --onevent
 │       ├── etc/services.d/librespot/finish   # unchanged
-│       ├── **etc/services.d/bridge/{run,finish}**
-│       └── **usr/bin/spotify-event**         # forwards PLAYER_EVENT + env to the bridge socket
-└── **bridge/**                         # Python package, installed into the image venv
-    ├── pyproject.toml                  # aiosendspin==10.3.*, aiohttp
-    └── spotify_bridge/
-        ├── __main__.py                 # load /data/options.json, start the services
-        ├── config.py
-        ├── events.py                   # unix-socket server, parses librespot events → state machine
-        ├── pcm.py                      # FIFO reader; always drains; 44.1k s16 frames → listeners
-        ├── sendspin_source.py          # aiosendspin client: source role, line_sense, pairing state in /data
-        ├── http_stream.py              # Path B: aiohttp + ffmpeg FLAC fan-out
-        ├── ha.py                       # Supervisor → Core API: volume_set, play_media, find active MA player
-        └── tests/
+│   │   ├── **etc/cont-init.d/spotify-bridge.sh**  # creates /run/spotify-bridge/audio.fifo
+│   │   └── **etc/services.d/bridge/{run,finish}**
+│   └── **bridge/**                     # Python package (inside the add-on dir = Docker build context),
+│       ├── pyproject.toml              #   installed into /opt/spotify-bridge (venv)
+│       ├── src/spotify_bridge/
+│       │   ├── __main__.py             # `spotify-bridge`: load /data/options.json, run
+│       │   ├── app.py                  # wiring; Phase 2 hooks marked
+│       │   ├── config.py
+│       │   ├── event_hook.py           # `spotify-bridge-event` (librespot --onevent) → unix datagram
+│       │   ├── events.py               # unix-socket server → state machine
+│       │   ├── state.py                # idle / connected / playing / paused; signal_present
+│       │   ├── pcm.py                  # real-time paced FIFO reader (back-pressure on librespot)
+│       │   ├── sendspin_source.py      # Phase 2: aiosendspin client, source role, line_sense, /data
+│       │   ├── http_stream.py          # Phase 3: Path B, aiohttp + ffmpeg FLAC fan-out
+│       │   └── ha.py                   # Phase 3: Supervisor → Core API (volume_set, play_media)
+│       └── tests/                      # pytest (Linux-only tests skip on Windows) + smoke_linux.py
+└── spike/                              # Phase 0 Sendspin source spike (reference only)
 ```
 
 ## Phases
@@ -92,10 +96,12 @@ Goal: answer D1 and R1 before writing any code.
 ### Phase 1: Fork and audio plumbing (about 2 days)
 
 - [x] *(2026-11-12)* Fork on GitHub as `dnwk/ha-spotify-bridge` (public, D8). Clone it locally, add the `upstream` remote, and create the `bridge` branch. `git mv spotify spotify_bridge`. Add `repository.yaml`. Disable upstream's org-specific workflows.
-- [ ] Dockerfile: change the librespot features and add python3 + venv + the bridge package. Build locally on the HA box (`/addons/local`) for amd64 first.
-- [ ] librespot `run`: pipe backend to the FIFO, `--volume-ctrl fixed`, `--onevent`. Create the FIFO in the bridge's `run` before librespot starts.
-- [ ] `spotify-event` hook + `events.py` state machine (idle / playing / paused / disconnected).
-- [ ] `pcm.py`: FIFO reader that always drains (so librespot never blocks).
+- [x] Dockerfile: librespot features `native-tls with-libmdns` (no PulseAudio), python3 3.14 + venv + bridge package, `chmod a+x` safety net. `audio: true` removed from config.yaml. **Image not built yet.**
+- [x] librespot `run`: `--backend pipe --device /run/spotify-bridge/audio.fifo --format S16 --volume-ctrl fixed --onevent … --emit-sink-events`. The FIFO is created in `cont-init.d` (before both services).
+- [x] `spotify-bridge-event` hook + `events.py` + `state.py` state machine (idle / connected / playing / paused).
+- [x] `pcm.py`: real-time paced reader (one 20 ms chunk per tick, O_RDWR so no EOF). Pipe back-pressure keeps librespot in real time.
+- [x] Tests: 28 pass on Linux (WSL), 25 on Windows (3 Linux-only skipped), ruff clean. `tests/smoke_linux.py` ran the real bridge with a fake librespot: events → states → signal present/absent; 300 chunks = 6.0 s; the writer was paced to 5.65 s (0.37 s pipe buffer).
+- [ ] Build the image (amd64) and run it on the test HA.
 - [ ] **Demo:** Spotify → "Home Assistant" → the bridge logs PCM levels and state changes.
 
 ### Phase 2: Sendspin source into MA (about 3 days)

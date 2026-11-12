@@ -1,0 +1,11 @@
+#!/command/with-contenv bashio
+# ==============================================================================
+# Spotify Bridge
+# Take down the S6 supervision tree when the bridge fails
+# ==============================================================================
+if [[ "${1}" -ne 0 ]] && [[ "${1}" -ne 256 ]]; then
+  bashio::log.warning "Spotify Bridge crashed, halting app"
+  /run/s6/basedir/bin/halt
+fi
+
+bashio::log.info "Spotify Bridge stopped."

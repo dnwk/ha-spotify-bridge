@@ -1,0 +1,9 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+# ==============================================================================
+# Spotify Bridge
+# Runs the bridge service (reads librespot's PCM FIFO and player events)
+# ==============================================================================
+bashio::log.info 'Starting Spotify Bridge...'
+
+exec /opt/spotify-bridge/bin/spotify-bridge

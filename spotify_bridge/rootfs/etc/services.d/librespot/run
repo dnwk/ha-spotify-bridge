@@ -1,7 +1,7 @@
 #!/command/with-contenv bashio
 # shellcheck shell=bash
 # ==============================================================================
-# Home Assistant Community App: Spotify Connect
+# Spotify Bridge (fork of Home Assistant Community App: Spotify Connect)
 # Runs librespot
 # ==============================================================================
 declare -a options
@@ -43,6 +43,18 @@ fi
 
 # Save writes
 options+=(--disable-audio-cache)
+
+# Spotify Bridge: no sound card. Decoded audio goes to a FIFO that the bridge
+# service reads (s16le, 44.1 kHz, stereo). The FIFO is created by
+# /etc/cont-init.d/spotify-bridge.sh before any service starts.
+options+=(--backend pipe)
+options+=(--device /run/spotify-bridge/audio.fifo)
+options+=(--format S16)
+# Full-scale PCM; the Spotify volume slider is mirrored to the speaker instead.
+options+=(--volume-ctrl fixed)
+# Player events (playing, paused, volume_changed, ...) go to the bridge.
+options+=(--onevent /opt/spotify-bridge/bin/spotify-bridge-event)
+options+=(--emit-sink-events)
 
 # Are we running in debug mode?
 if bashio::debug; then

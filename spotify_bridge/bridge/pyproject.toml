@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "spotify-bridge"
+version = "0.0.1"
+description = "Bridges librespot (pipe backend) into Music Assistant as a Sendspin source"
+license = "MIT"
+requires-python = ">=3.12"
+# Phase 1 is standard-library only. Phase 2 adds aiosendspin.
+dependencies = []
+
+[project.scripts]
+spotify-bridge = "spotify_bridge.__main__:main"
+spotify-bridge-event = "spotify_bridge.event_hook:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"

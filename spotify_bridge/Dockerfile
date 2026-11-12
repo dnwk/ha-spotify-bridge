@@ -18,20 +18,16 @@ RUN \
         cargo=1.96.1-r0 \
         git=2.54.1-r0 \
         protobuf-dev=31.1-r1 \
-        pulseaudio-dev=17.0-r7 \
         cmake=4.2.3-r0 \
         clang20-libclang=20.1.8-r3 \
         openssl-dev=3.5.9-r0 \
-    \
-    && apk add --no-cache \
-        pulseaudio=17.0-r7 \
     \
     && cargo install --force --locked bindgen-cli \
     && export PATH="$HOME/.cargo/bin:$PATH" \
     && cargo install \
         --locked \
         --no-default-features \
-        --features "native-tls pulseaudio-backend with-libmdns" \
+        --features "native-tls with-libmdns" \
         --root /usr \
         --bin librespot \
         --version "${LIBRESPOT_VERSION}" \
@@ -46,8 +42,24 @@ RUN \
         /usr/.crates.toml \
         /usr/.crates2.json
 
+# Spotify Bridge: Python service that reads librespot's PCM pipe and events
+# (librespot is built without PulseAudio; it writes to a FIFO instead).
+COPY bridge /tmp/bridge
+RUN \
+    apk add --no-cache \
+        python3=3.14.10-r1 \
+    \
+    && python3 -m venv /opt/spotify-bridge \
+    && /opt/spotify-bridge/bin/pip install --no-cache-dir /tmp/bridge \
+    && rm -fr /tmp/bridge
+
 # Copy root filesystem
 COPY rootfs /
+# Copies made from Windows (Samba / local add-on folder) lose the executable bit.
+RUN chmod a+x \
+        /etc/cont-init.d/spotify-bridge.sh \
+        /etc/services.d/librespot/run /etc/services.d/librespot/finish \
+        /etc/services.d/bridge/run /etc/services.d/bridge/finish
 
 # Build arguments
 ARG BUILD_ARCH
