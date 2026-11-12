@@ -1,0 +1,3 @@
+# Keep LF everywhere: these files run in Linux containers (s6 run scripts, Dockerfile).
+* text=auto eol=lf
+*.png binary

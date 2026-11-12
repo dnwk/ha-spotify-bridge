@@ -1,116 +1,41 @@
-# Home Assistant Community App: Spotify Connect
+# Spotify Bridge for Home Assistant
 
-[![GitHub Release][releases-shield]][releases]
-![Project Stage][project-stage-shield]
-[![License][license-shield]](LICENSE.md)
+A fork of the Home Assistant Community app [Spotify Connect](https://github.com/hassio-addons/app-spotify-connect) by Franck Nijhof.
 
-[![Github Actions][github-actions-shield]][github-actions]
-![Project Maintenance][maintenance-shield]
-[![GitHub Activity][commits-shield]][commits]
+The upstream app plays Spotify through the Home Assistant host's own sound output. This fork sends the audio into **[Music Assistant](https://music-assistant.io)** as a Sendspin **Live Input** instead. You keep one Spotify Connect device ("Home Assistant"), and you choose in Music Assistant which speaker actually plays it: Cast displays and TVs, Home Assistant Voice PE, sync groups, and so on.
 
-[![Sponsor Frenck via GitHub Sponsors][github-sponsors-shield]][github-sponsors]
+> **Status: work in progress.** Phase 0 (de-risking) is done. Nothing is installable yet. Please use the [upstream app](https://github.com/hassio-addons/app-spotify-connect) if you want something that works today.
 
-[![Support Frenck on Patreon][patreon-shield]][patreon]
+## How it will work
 
-Play Spotify music on your Home Assistant device.
+```
+Spotify app ──Connect──▶ librespot (pipe backend) ──PCM──▶ bridge (Python, aiosendspin)
+                                                              │ Sendspin source role + line-sense
+                                                              ▼
+                                            Music Assistant "Live Input" ──▶ any MA speaker / group
+```
 
-![The Spotify Connect app](images/screenshot.png)
+- **librespot 0.8.0** (as upstream) writes decoded audio to a FIFO and reports play, pause and volume events.
+- The **bridge** is a paired Sendspin *source* client. When Spotify plays, it reports "signal present", and Music Assistant's **Sendspin Source** plugin starts it on the speaker you picked. When Spotify stops, Music Assistant stops the speaker after 60 s.
+- Requirements: Music Assistant 2.10+ with the Sendspin provider and the Sendspin Source plugin, and a Spotify Premium account.
 
-## About
+## Documents
 
-The Home Assistant Spotify Connect app allows you to use your device,
-running Home Assistant, to play your Spotify music. This app uses the
-Spotify Connect protocol, which makes it a device that can be controlled
-by all the official clients.
+- [docs/DECISIONS.md](docs/DECISIONS.md): prior art, decisions, risks
+- [docs/PLAN.md](docs/PLAN.md): architecture and phased plan
+- [docs/TESTING.md](docs/TESTING.md): Phase 0 results (librespot login, Sendspin source into Music Assistant)
+- [spike/](spike/): the throwaway Sendspin source test client used in Phase 0
 
-For example, running Home Assistant on a Raspberry Pi with this app
-installed will allow you to play your Spotify music on the Pi. So all you'll
-have to do is hook up your sound system to the Pi and start booming!
+## Branches
 
-[:books: Read the full app documentation][docs]
+- `main` mirrors upstream (`hassio-addons/app-spotify-connect`), so syncing the fork is a fast-forward.
+- `bridge` holds all the changes in this fork.
 
-## Support
+## Credits and licence
 
-Got questions?
+- Upstream app © 2018-2026 Franck Nijhof, MIT. See [LICENSE.md](LICENSE.md).
+- [librespot](https://github.com/librespot-org/librespot) (MIT).
+- [aiosendspin](https://github.com/Sendspin/aiosendspin) (Apache-2.0).
+- `spike/state.py` is copied from [sendspin-jack-bridge](https://github.com/Sendspin/sendspin-jack-bridge) (Apache-2.0), and `spike/source_spike.py` is adapted from it.
 
-You have several options to get them answered:
-
-- The [Home Assistant Community Apps Discord chat server][discord] for app
-  support and feature requests.
-- The [Home Assistant Discord chat server][discord-ha] for general Home
-  Assistant discussions and questions.
-- The Home Assistant [Community Forum][forum].
-- Join the [Reddit subreddit][reddit] in [/r/homeassistant][reddit]
-
-You could also [open an issue here][issue] on GitHub.
-
-## Contributing
-
-This is an active open-source project. We are always open to people who want to
-use the code or contribute to it.
-
-We have set up a separate document containing our
-[contribution guidelines](.github/CONTRIBUTING.md).
-
-Thank you for being involved! :heart_eyes:
-
-## Authors & contributors
-
-The original setup of this repository is by [Franck Nijhof][frenck].
-
-For a full list of all authors and contributors,
-check [the contributor's page][contributors].
-
-## We have got some Home Assistant apps for you
-
-Want some more functionality to your Home Assistant instance?
-
-We have created multiple apps for Home Assistant. For a full list, check out
-our [GitHub Repository][repository].
-
-## License
-
-MIT License
-
-Copyright (c) 2018-2026 Franck Nijhof
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-[commits-shield]: https://img.shields.io/github/commit-activity/y/hassio-addons/app-spotify-connect.svg
-[commits]: https://github.com/hassio-addons/app-spotify-connect/commits/main
-[contributors]: https://github.com/hassio-addons/app-spotify-connect/graphs/contributors
-[discord-ha]: https://discord.gg/c5DvZ4e
-[discord]: https://discord.me/hassioaddons
-[docs]: https://github.com/hassio-addons/app-spotify-connect/blob/main/spotify/DOCS.md
-[forum]: https://community.home-assistant.io/t/home-assistant-community-add-on-spotify-connect/61210?u=frenck
-[frenck]: https://github.com/frenck
-[github-actions-shield]: https://github.com/hassio-addons/app-spotify-connect/workflows/CI/badge.svg
-[github-actions]: https://github.com/hassio-addons/app-spotify-connect/actions
-[github-sponsors-shield]: https://frenck.dev/wp-content/uploads/2019/12/github_sponsor.png
-[github-sponsors]: https://github.com/sponsors/frenck
-[issue]: https://github.com/hassio-addons/app-spotify-connect/issues
-[license-shield]: https://img.shields.io/github/license/hassio-addons/app-spotify-connect.svg
-[maintenance-shield]: https://img.shields.io/maintenance/yes/2026.svg
-[patreon-shield]: https://frenck.dev/wp-content/uploads/2019/12/patreon.png
-[patreon]: https://www.patreon.com/frenck
-[project-stage-shield]: https://img.shields.io/badge/project%20stage-experimental-yellow.svg
-[reddit]: https://reddit.com/r/homeassistant
-[releases-shield]: https://img.shields.io/github/release/hassio-addons/app-spotify-connect.svg
-[releases]: https://github.com/hassio-addons/app-spotify-connect/releases
-[repository]: https://github.com/hassio-addons/repository
+This fork's own changes are MIT as well. It is not affiliated with Spotify, Home Assistant, the Open Home Foundation or Music Assistant.
