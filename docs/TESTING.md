@@ -17,8 +17,8 @@ Results from the Phase 0 checks in [PLAN.md](PLAN.md). Risk and decision IDs ref
 19:34:57 librespot_core::session  Connecting to AP "ap-….spotify.com:4070"
 19:34:57 librespot_core::session  Authenticated as '<id>' !
 19:34:58 librespot_connect::spirc active device is <…> with session <…>
-19:34:58 librespot_playback::player Loading <Light> with Spotify URI <spotify:track:…>
-19:34:58 librespot_playback::player <Light> (239853 ms) loaded
+19:34:58 librespot_playback::player Loading <track> with Spotify URI <spotify:track:…>
+19:34:58 librespot_playback::player <track> (239853 ms) loaded
 19:35:28 librespot_connect::spirc device became inactive
 ```
 
