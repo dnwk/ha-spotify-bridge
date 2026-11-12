@@ -84,3 +84,36 @@ Results from the Phase 0 checks in [PLAN.md](PLAN.md). Risk and decision IDs ref
 - Living Room Display is idle.
 - MA settings are otherwise unchanged. Nothing changed in HA.
 - The spike code stays in `spike/` for reference in Phase 2. Its `.state/` holds a now-unused identity key (git-ignored).
+
+## Phase 1: the fork running on the test HA. **PASS** (2026-11-12)
+
+**Build and install:**
+- Local amd64 build with Docker Desktop: about 2.5 min, 145 MB.
+- Then HA added the repository `https://github.com/dnwk/ha-spotify-bridge#bridge` (slug `2f193555_spotify_bridge`) and built the image on the HAOS 18.4 VM in **14.5 min**.
+- Supervisor warning: "uses build.yaml which is deprecated". The file comes from upstream; we follow upstream on this.
+
+**Start-up:** `cont-init` created the FIFO, then `librespot` and `bridge` started.
+- librespot: `volume control: Fixed`, `Using StdoutSink (pipe) with format: S16`.
+- Bridge: listening for events, reading the FIFO.
+- The app runs with `host_network: true`, `audio: false`.
+
+**Live test** (the owner picked "Home Assistant" in the Spotify app; track names left out on purpose):
+
+| Local time | Bridge log |
+|---|---|
+| 15:38:42 | librespot: connecting to the access point, `Authenticated`, active device |
+| 15:38:43 | `Player: connected`, `Spotify volume: 50%`, then `Player: playing, '<track 1>' by <artist>`, **`Signal present`** |
+| 15:38:48 – 15:39:03 | `Audio flowing: 250 chunks in 5 s` every 5 s (**exactly real time**), loudest −12 to −17 dBFS |
+| 15:39:06 | next track loaded: `Player: playing, '<track 2>'` (the signal stays present across the track change) |
+| 15:39:11 | `Player: paused`, **`Signal absent`** |
+| 15:39:16 | `Player: playing`, **`Signal present`** |
+| 15:39:30 | `Player: paused`, `Signal absent` |
+| 15:39:39 | librespot: `device became inactive` (the owner switched device), then `Player: idle` |
+
+**Result:**
+- librespot → FIFO → bridge works on the real HA, with real Spotify audio, track changes, and pause/resume.
+- The reader holds librespot to real time: 250 chunks per 5 s, with no starving while playing.
+
+**Bug found and fixed:** after `session_disconnected`, librespot also sends `stopped`. The state machine went idle → connected. It now stays idle (new test `test_stopped_after_disconnect_stays_idle`). This had no effect on the signal, which stayed absent.
+
+**After the test:** Spotify Bridge is stopped with boot set to `manual`. The stock Spotify Connect app is stopped with boot `manual` (unchanged).

@@ -46,6 +46,17 @@ def test_stopped_returns_to_connected():
     assert sm.snapshot.state is PlayerState.CONNECTED
 
 
+def test_stopped_after_disconnect_stays_idle():
+    """Order librespot uses when another device is picked in Spotify."""
+    sm = PlayerStateMachine()
+    sm.apply(ev("session_connected"))
+    sm.apply(ev("playing"))
+    sm.apply(ev("paused"))
+    sm.apply(ev("session_disconnected"))
+    sm.apply(ev("stopped"))
+    assert sm.snapshot.state is PlayerState.IDLE
+
+
 def test_session_connected_does_not_reset_playing():
     sm = PlayerStateMachine()
     sm.apply(ev("playing"))

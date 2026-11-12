@@ -123,6 +123,10 @@ class PlayerStateMachine:
             case "paused":
                 return replace(old, state=PlayerState.PAUSED)
             case "stopped":
+                # librespot also sends `stopped` right after `session_disconnected`
+                # (seen on HA 2026-11-12); that must not revive the session.
+                if old.state is PlayerState.IDLE:
+                    return old
                 return replace(old, state=PlayerState.CONNECTED)
             case "track_changed":
                 covers = _split_lines(event.get("COVERS"))

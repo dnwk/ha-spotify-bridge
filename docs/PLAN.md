@@ -102,8 +102,10 @@ Goal: answer D1 and R1 before writing any code.
 - [x] `pcm.py`: real-time paced reader (one 20 ms chunk per tick, O_RDWR so no EOF). Pipe back-pressure keeps librespot in real time.
 - [x] Tests: 28 pass on Linux (WSL), 25 on Windows (3 Linux-only skipped), ruff clean. `tests/smoke_linux.py` ran the real bridge with a fake librespot: events → states → signal present/absent; 300 chunks = 6.0 s; the writer was paced to 5.65 s (0.37 s pipe buffer).
 - [x] Image built locally for amd64 with Docker Desktop (2026-11-12, about 2.5 min, 145 MB). In-container check: librespot 0.8.0 has only the `pipe`/`subprocess` backends, no libpulse, and accepts all the run-script flags (`volume control: Fixed`, `StdoutSink (pipe) with format: S16`). The bridge received events through the real hook and paced 6.0 s of audio (writer took 5.64 s). Clean exit on SIGTERM.
-- [ ] Install on the test HA from the GitHub repo (`#bridge`) and run it.
-- [ ] **Demo:** Spotify → "Home Assistant" → the bridge logs PCM levels and state changes.
+- [x] Installed on the test HA from the GitHub repo (`#bridge`, built on the VM in 14.5 min) and ran it (2026-11-12).
+- [x] **Demo (PASS 2026-11-12, see TESTING.md):** Spotify → "Home Assistant" → the bridge logged real-time PCM levels (250 chunks per 5 s), track changes, pause/resume and signal present/absent. One state-machine bug was fixed (`stopped` after a disconnect).
+
+**Phase 1 complete.**
 
 ### Phase 2: Sendspin source into MA (about 3 days)
 
