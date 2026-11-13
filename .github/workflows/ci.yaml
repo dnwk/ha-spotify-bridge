@@ -1,0 +1,49 @@
+---
+name: CI
+
+# Lint and test the bridge. Runs on the fork's own branch only; upstream's
+# workflows (on `main`) are not used by this fork.
+on:
+  push:
+    branches: [bridge]
+  pull_request:
+    branches: [bridge]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python:
+    name: Python (ruff + pytest)
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: spotify_bridge/bridge
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install ruff pytest .
+      - name: Ruff
+        run: ruff check src tests
+      - name: Pytest (Linux runs the FIFO and socket tests too)
+        run: python -m pytest -q --ignore=tests/live_ma_source.py
+
+  shell:
+    name: Shell scripts (shellcheck)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Shellcheck s6 scripts
+        run: |
+          find spotify_bridge/rootfs -type f \( -name run -o -name finish -o -name '*.sh' \) -print0 \
+            | xargs -0 shellcheck -s bash -e SC1008,SC2148

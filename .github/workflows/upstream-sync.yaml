@@ -1,0 +1,67 @@
+---
+name: Upstream sync
+
+# Weekly: fast-forward the fork's `main` to upstream's `main`, then offer the
+# new upstream commits to `bridge` as a pull request (or an issue if the merge
+# conflicts). Scheduled workflows only run from the default branch, which is
+# `bridge` in this fork.
+on:
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      UPSTREAM: https://github.com/hassio-addons/app-spotify-connect.git
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: bridge
+          fetch-depth: 0
+
+      - name: Fetch upstream and update main
+        id: fetch
+        run: |
+          git remote add upstream "$UPSTREAM"
+          git fetch --no-tags upstream main
+          # main mirrors upstream; a push by GITHUB_TOKEN does not trigger workflows.
+          git push origin "refs/remotes/upstream/main:refs/heads/main"
+          if git merge-base --is-ancestor upstream/main HEAD; then
+            echo "Bridge already contains upstream/main."
+            echo "behind=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "behind=true" >> "$GITHUB_OUTPUT"
+            git log --oneline HEAD..upstream/main
+          fi
+
+      - name: Open a pull request (or an issue on conflicts)
+        if: steps.fetch.outputs.behind == 'true'
+        run: |
+          branch="upstream-sync/$(date -u +%Y%m%d)"
+          if gh pr list --base bridge --state open --json headRefName --jq '.[].headRefName' | grep -q '^upstream-sync/'; then
+            echo "An upstream-sync pull request is already open."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          commits="$(git log --oneline HEAD..upstream/main)"
+          if git merge --no-edit upstream/main; then
+            git push origin "$branch"
+            gh pr create --base bridge --head "$branch" \
+              --title "Merge upstream changes ($(date -u +%Y-%m-%d))" \
+              --body "$(printf 'New upstream commits:\n\n```\n%s\n```\n\nCI does not run automatically on pull requests opened by GitHub Actions: run the CI workflow on this branch by hand before merging.' "$commits")"
+          else
+            git merge --abort
+            gh issue create \
+              --title "Upstream changes need a manual merge ($(date -u +%Y-%m-%d))" \
+              --body "$(printf 'Merging upstream/main into bridge conflicts. New upstream commits:\n\n```\n%s\n```\n\nSee docs/MAINTENANCE.md.' "$commits")"
+          fi

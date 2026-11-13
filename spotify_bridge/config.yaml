@@ -1,9 +1,11 @@
 ---
 name: Spotify Bridge
-version: 0.1.0-dev3
+version: 0.1.0-dev4
 slug: spotify_bridge
 description: Spotify Connect device that plays through Music Assistant speakers (fork of the Spotify Connect app)
 url: https://github.com/dnwk/ha-spotify-bridge
+# Prebuilt by GitHub Actions (.github/workflows/build.yaml); HA pulls instead of compiling.
+image: ghcr.io/dnwk/{arch}-spotify-bridge
 arch:
   - aarch64
   - amd64

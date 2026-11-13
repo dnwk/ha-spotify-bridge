@@ -200,6 +200,15 @@ check [the contributor's page][contributors].
 
 ## License
 
+This fork's changes and the upstream app are MIT licensed (text below).
+Bundled third-party software keeps its own licence:
+[librespot](https://github.com/librespot-org/librespot) (MIT),
+[aiosendspin](https://github.com/Sendspin/aiosendspin) (Apache-2.0),
+[aiomqtt](https://github.com/empicano/aiomqtt) (BSD-3-Clause),
+[paho-mqtt](https://github.com/eclipse-paho/paho.mqtt.python) (EPL-2.0 or EDL-1.0),
+and their dependencies (aiohttp, cryptography, zeroconf and others).
+This project is not affiliated with Spotify.
+
 MIT License
 
 Copyright (c) 2018-2026 Franck Nijhof
