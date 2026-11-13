@@ -185,3 +185,15 @@ Results from the Phase 0 checks in [PLAN.md](PLAN.md). Risk and decision IDs ref
 **Quirks seen:**
 - Saving the source's "Automatically play line-in on" setting in MA at 16:47 made Living Room Display start "playing" the source, with no Spotify and no `source start` reaching the bridge (silence). It was stopped by hand and did not recur. This is an MA behaviour when that setting changes.
 - The Sendspin `metadata` role is server→client only, so track info cannot reach MA from a source. Documented as a limitation.
+
+## Phase 5: prebuilt image (2026-11-12)
+
+The app on the test HA was updated from 0.1.0-dev3 (built on the VM) to 0.1.0-dev4 from GHCR with `store/reload`, then `store/addons/<slug>/update` (backup off). The update took 10 s:
+
+| Time | Supervisor |
+|---|---|
+| 19:31:55 | `Updating image …:0.1.0-dev3 to ghcr.io/dnwk/amd64-spotify-bridge:0.1.0-dev4`, then `Downloading docker image` |
+| 19:32:01 | Download done; the old container was stopped, and the locally built dev3 image was cleaned up |
+| 19:32:05 | `Starting Docker app ghcr.io/dnwk/amd64-spotify-bridge with version 0.1.0-dev4` |
+
+The app's `build` flag is now false. The bridge log at 19:32:08 shows it was still paired, connected to MA at once, and restored the Speaker selection (HA Voice). The select entity lists the three MA speakers plus "Music Assistant setting".

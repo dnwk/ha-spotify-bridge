@@ -137,7 +137,8 @@ Goal: answer D1 and R1 before writing any code.
 - [x] config.yaml `image:` → HA pulls prebuilt images (0.1.0-dev4).
 - [x] Upstream merge routine (R8): `upstream-sync.yaml` runs weekly (Mondays) instead of monthly: it fast-forwards `main` and opens a PR (or an issue on conflicts). Process in `docs/MAINTENANCE.md`. Default branch is now `bridge`.
 - [x] DOCS.md: setup, pairing, speaker choice, limits, delay per speaker type, third-party licences. `CHANGELOG.md` added.
-- [ ] GHCR packages public (needed for HA to pull without credentials).
+- [x] GHCR packages public (inherited from the public repo; anonymous pull checked).
+- [x] HA updated to 0.1.0-dev4 from GHCR (2026-11-12): the Supervisor pulled `ghcr.io/dnwk/amd64-spotify-bridge:0.1.0-dev4` in about 6 s (no local build) and restarted the app with its pairing and speaker selection kept.
 - [ ] Soak test: hours of playback, device switches, MA and HA restarts while playing, switching speaker mid-song (owner).
 - [ ] Tag v0.1.0 and create the GitHub release (after the soak test, owner OK).
 - Optional later: switch to go-librespot for two-way control (D3), and a `devices:` list (D4).
@@ -162,4 +163,4 @@ Goal: answer D1 and R1 before writing any code.
 
 ## Immediate next step
 
-All open questions are answered (2026-11-12). Run Phase 0: the stock add-on login check, then the Sendspin source spike. Both touch your HA/MA, so the exact steps are listed for the owner's OK before they run.
+Phases 0-4 are done and HA runs the prebuilt 0.1.0-dev4 image. Next: the owner's soak test (including a speaker switch mid-song), then tag v0.1.0 with the owner's OK.
