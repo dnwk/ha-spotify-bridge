@@ -139,8 +139,8 @@ Goal: answer D1 and R1 before writing any code.
 - [x] DOCS.md: setup, pairing, speaker choice, limits, delay per speaker type, third-party licences. `CHANGELOG.md` added.
 - [x] GHCR packages public (inherited from the public repo; anonymous pull checked).
 - [x] HA updated to 0.1.0-dev4 from GHCR (2026-11-12): the Supervisor pulled `ghcr.io/dnwk/amd64-spotify-bridge:0.1.0-dev4` in about 6 s (no local build) and restarted the app with its pairing and speaker selection kept.
-- [ ] Soak test: hours of playback, device switches, MA and HA restarts while playing, switching speaker mid-song (owner).
-- [ ] Tag v0.1.0 and create the GitHub release (after the soak test, owner OK).
+- [x] Released 0.1.0 (2026-11-12, owner's call, before the soak test): tag `bridge-v0.1.0` (prefixed because upstream already has `v0.1.0`…`v0.19.0`), GitHub release with notes, images `0.1.0` for both architectures. README and DOCS support links now point at the fork.
+- [ ] Soak test: hours of playback, device switches, MA and HA restarts while playing, switching speaker mid-song (owner). Fixes go into 0.1.1.
 - Optional later: switch to go-librespot for two-way control (D3), and a `devices:` list (D4).
 
 ## Test environment
@@ -163,4 +163,4 @@ Goal: answer D1 and R1 before writing any code.
 
 ## Immediate next step
 
-Phases 0-4 are done and HA runs the prebuilt 0.1.0-dev4 image. Next: the owner's soak test (including a speaker switch mid-song), then tag v0.1.0 with the owner's OK.
+0.1.0 is released. Next: update HA to 0.1.0, then the owner's soak test (including a speaker switch mid-song); fixes go into 0.1.1.
