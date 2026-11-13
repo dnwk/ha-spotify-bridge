@@ -113,7 +113,7 @@ Goal: answer D1 and R1 before writing any code.
 - [ ] Map the state machine to `signal` present/absent. On `server/command: start`/`stop`, start or stop the capture. Feed timestamped PCM.
 - [ ] Pairing instructions in DOCS.md. Option `sendspin_name`.
 - [ ] Set the autostart target in MA (Living Room Display). Test moving the Live Input to another speaker and to a sync group by hand.
-- [ ] **Demo:** Spotify → "Home Assistant" → plays on Living Room Display. Switch the speaker in MA without touching Spotify.
+- [x] **Demo (PASS 2026-11-12, see TESTING.md):** Spotify → "Home Assistant" → plays on Living Room Display (MA started it 3 s after play). *Switching the speaker in MA mid-play is not tested yet.*
 
 ### Phase 3: Volume, metadata, fallback path (about 2 days)
 

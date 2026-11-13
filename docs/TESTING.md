@@ -117,3 +117,34 @@ Results from the Phase 0 checks in [PLAN.md](PLAN.md). Risk and decision IDs ref
 **Bug found and fixed:** after `session_disconnected`, librespot also sends `stopped`. The state machine went idle → connected. It now stays idle (new test `test_stopped_after_disconnect_stays_idle`). This had no effect on the signal, which stayed absent.
 
 **After the test:** Spotify Bridge is stopped with boot set to `manual`. The stock Spotify Connect app is stopped with boot `manual` (unchanged).
+
+## Phase 2: Spotify → Music Assistant → speaker on the test HA. **PASS** (2026-11-12)
+
+**PC live test first** (`spotify_bridge/bridge/tests/live_ma_source.py`, a tone generator instead of librespot):
+- **Static 8-digit code** pairing works, but only after enabling `static_pairing_code_enabled` in the client's pairing config. Without it, aiosendspin offers only `pairing_psk`, and MA asks for a long "pairing token". Fixed in `sendspin_source._apply_static_code`.
+- Signal present → MA `source start` in **3.9 s**.
+- Pause 15 s then resume: the same stream continues (no new start).
+- Signal absent → `source stop` after exactly **60 s**.
+- Unpair in MA → the connection drops → the bridge reconnects after 2 s, logs `No longer paired`, and offers pairing again.
+- The test device was then removed (`config/players/remove`). The unpaired player was unregistered right away this time, with no 180 s wait.
+
+**On HA:**
+- After the push, `store/reload` + `rebuild` took **31 s** (the librespot layer was cached). The Supervisor picked up the new options and `homeassistant_api: true`. The app connected to MA at `ws://localhost:8927/sendspin` with no configuration.
+- **Dynamic code pairing:** Start setup in MA → the bridge logged `pairing code: XXX-XXX` and HA showed the notification "Spotify Bridge: Music Assistant pairing code" → code entered → "All set!". The notification was dismissed automatically when pairing ended.
+- Auto-start target set to Living Room Display (Nest Hub, Cast).
+
+**Live Spotify test (local time, track names left out):**
+
+| Time | Bridge log |
+|---|---|
+| 16:35:25 | librespot `Authenticated` (the owner picked "Home Assistant" in Spotify) |
+| 16:35:27 | `Player: playing`, `Signal present`, `Told Music Assistant: signal present` |
+| 16:35:30 | `Music Assistant requested source start`, `Streaming to Music Assistant (pcm)` (**3 s**) |
+| — | The owner **heard it on Living Room Display**. HA `media_player.living_room_display` showed "Sendspin Source (Spotify (Home Assistant))". |
+| 16:35:50 | `Player: paused`, `Signal absent` |
+| 16:35:58 | `device became inactive` → `Player: idle` (the Phase 1 fix: no bounce to "connected") |
+
+**Notes:**
+- A leftover MA queue item from the PC test ("Sendspin Source (Spotify Bridge live test)") was resumed from the MA/HA play button and played silence ("buffering" on the Nest Hub) until it was stopped. That's harmless, but **a test source's queue item outlives the device**. When removing a test device, also stop the players that used it.
+- librespot logged a `WARN … dealer … failure during data parsing for hm://collection/…`. It's unrelated to playback and is a known librespot quirk.
+- **Not measured yet:** end-to-end delay. Not done yet: volume sync (Phase 3).
