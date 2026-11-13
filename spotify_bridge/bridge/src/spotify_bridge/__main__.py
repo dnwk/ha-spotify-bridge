@@ -18,8 +18,7 @@ def main() -> int:
         datefmt="%H:%M:%S",
         stream=sys.stdout,
     )
-    asyncio.run(run(config))
-    return 0
+    return asyncio.run(run(config))
 
 
 if __name__ == "__main__":

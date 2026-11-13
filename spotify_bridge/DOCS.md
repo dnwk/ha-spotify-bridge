@@ -1,29 +1,46 @@
-# Home Assistant Community App: Spotify Connect
+# Spotify Bridge
 
-The Home Assistant Spotify Connect app allows you to use your device,
-running Home Assistant, to play your Spotify music. This app uses the
-Spotify Connect protocol, which makes it a device that can be controlled
-by all the official clients.
+A fork of the Home Assistant Community app "Spotify Connect". It is a Spotify
+Connect device ("Home Assistant" by default) that plays through **Music
+Assistant** instead of this machine's own sound output: Music Assistant
+decides which speaker (or group) plays it.
 
-For example, running Home Assistant on a Raspberry Pi with this app
-installed will allow you to play your Spotify music on the Pi. So all you'll
-have to do is hook up your sound system to the Pi and start booming!
+**Work in progress.** Requirements: Music Assistant 2.10+ (as an app on this
+Home Assistant) with the **Sendspin** player provider and the **Sendspin
+Source** plugin, and a Spotify Premium account.
 
 ## Installation
 
-The installation of this app is pretty straightforward and not different in
-comparison to installing any other Home Assistant app.
+1. Add `https://github.com/dnwk/ha-spotify-bridge#bridge` under
+   Settings > Apps > (menu) > Repositories, then install "Spotify Bridge".
+   Home Assistant builds it locally (about 15 minutes).
+1. Optional: set a `pairing_code` (8 digits) in the Configuration tab.
+1. Start the app and pair it with Music Assistant (below).
+1. In the Spotify app, pick the device named like the `name` option.
 
-1. Click the Home Assistant My button below to open the app on your Home
-   Assistant instance.
+## Pairing with Music Assistant (once)
 
-   [![Open this app in your Home Assistant instance.][app-badge]][app]
+1. In Music Assistant open Settings > Players. "Spotify (Home Assistant)"
+   shows **This player requires setup**. Click **Start setup**.
+1. Enter the code:
+   - with `pairing_code` set: type those 8 digits;
+   - without it: a 6-digit code appears as a Home Assistant notification
+     (and in this app's log). It is valid for about 2 minutes.
+1. Open the new player's settings in Music Assistant and choose a speaker
+   under **Automatically play line-in on**. Playback from Spotify now starts
+   there automatically. You can move it to another speaker or group in Music
+   Assistant at any time.
 
-1. Click the "Install" button to install the app.
-1. Select your audio output device and hit `Save` on that as well.
-1. Start the "Spotify Connect" app.
-1. Check the logs of the "Spotify Connect" app to see if everything went well.
-1. Ready to go!
+The pairing is stored in the app's data, so it survives restarts and updates.
+To pair again, unpair in Music Assistant (player settings, advanced) while the
+app is running.
+
+## Behaviour to know
+
+- Pausing in Spotify keeps the speaker "playing silence" for 60 seconds, so a
+  quick resume continues seamlessly; after that Music Assistant stops it.
+- Stopping the player in Music Assistant does not pause Spotify.
+- The Spotify volume slider does not change the speaker volume yet.
 
 ## Configuration
 
@@ -37,6 +54,8 @@ name: Home Assistant
 bitrate: 320
 initial_volume: 50
 autoplay: true
+music_assistant_url: ws://localhost:8927/sendspin
+pairing_code: "12345678"
 ```
 
 **Note**: _This is just an example, don't copy and paste it! Create your own!_
@@ -82,6 +101,22 @@ recovers from a crash.
 ### Option: `autoplay`
 
 Whether Spotify should autoplay similar songs when reaching the end of the queue.
+
+### Option: `music_assistant_url`
+
+Where Music Assistant's Sendspin server listens. The default
+`ws://localhost:8927/sendspin` works when Music Assistant runs as an app on
+this Home Assistant.
+
+### Option: `sendspin_name`
+
+Name of the Live Input in Music Assistant. Defaults to `Spotify (<name>)`.
+
+### Option: `pairing_code`
+
+Optional fixed 8-digit code (for example `1234-5678`) to type into Music
+Assistant when pairing. Leave it empty to get a one-time code as a
+notification instead.
 
 ### Option: `access_token`
 

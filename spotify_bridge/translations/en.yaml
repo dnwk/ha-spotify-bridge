@@ -22,3 +22,22 @@ configuration:
     name: Autoplay
     description: >-
       Whether Spotify should autoplay similar songs at the end of the queue.
+  access_token:
+    name: Access token
+    description: >-
+      Optional. Only needed if you cannot pick the device in the Spotify app on
+      your network. See the librespot documentation.
+  music_assistant_url:
+    name: Music Assistant Sendspin URL
+    description: >-
+      Where Music Assistant's Sendspin server listens. The default works when
+      Music Assistant runs as an app on this Home Assistant.
+  sendspin_name:
+    name: Music Assistant input name
+    description: >-
+      Name of the Live Input in Music Assistant. Default: "Spotify (<Name>)".
+  pairing_code:
+    name: Pairing code
+    description: >-
+      Optional 8-digit code you type into Music Assistant when pairing. Leave
+      empty to get a one-time 6-digit code as a Home Assistant notification.

@@ -78,3 +78,25 @@ def test_reader_paces_fifo(tmp_path):
     # Paced: about 10 chunks in 200 ms, not all 15 at once.
     assert 8 <= taken_after_200ms <= 13
     assert len(chunks) == 15
+
+
+def test_config_sendspin_defaults():
+    cfg = Config.from_dict({"name": "Home Assistant"})
+    assert cfg.music_assistant_url == "ws://localhost:8927/sendspin"
+    assert cfg.source_name == "Spotify (Home Assistant)"
+    assert cfg.pairing_code is None
+
+
+def test_config_pairing_code_normalised_and_validated():
+    assert Config.from_dict({"pairing_code": "1234-5678"}).pairing_code == "12345678"
+    assert Config.from_dict({"pairing_code": " 1234 5678 "}).pairing_code == "12345678"
+    assert Config.from_dict({"pairing_code": "123456"}).pairing_code is None
+    assert Config.from_dict({"pairing_code": "abcdefgh"}).pairing_code is None
+
+
+def test_config_custom_names_and_url():
+    cfg = Config.from_dict(
+        {"name": "Den", "sendspin_name": "Den Spotify", "music_assistant_url": "ws://ma:8927/sendspin"}
+    )
+    assert cfg.source_name == "Den Spotify"
+    assert cfg.music_assistant_url == "ws://ma:8927/sendspin"

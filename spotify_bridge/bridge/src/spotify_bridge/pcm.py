@@ -18,8 +18,9 @@ import math
 import os
 import sys
 from array import array
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
+from inspect import isawaitable
 
 from spotify_bridge import FRAME_BYTES, SAMPLE_RATE
 
@@ -31,7 +32,8 @@ CHUNK_BYTES = CHUNK_FRAMES * FRAME_BYTES  # 3528
 # If the loop falls further behind than this, skip ahead instead of bursting.
 MAX_CATCH_UP_CHUNKS = 10
 
-ChunkCallback = Callable[[bytes, float], None]
+# May be a plain function or a coroutine function; coroutines are awaited in order.
+ChunkCallback = Callable[[bytes, float], Awaitable[None] | None]
 
 
 def level_dbfs(chunk: bytes) -> float:
@@ -149,7 +151,9 @@ class PcmReader:
                 self.stats.chunks += 1
                 self.last_data_time = now
                 try:
-                    self._on_chunk(chunk, tick_time)
+                    result = self._on_chunk(chunk, tick_time)
+                    if isawaitable(result):
+                        await result
                 except Exception:
                     log.exception("PCM chunk handler failed")
             next_tick += due * period
