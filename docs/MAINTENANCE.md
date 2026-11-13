@@ -24,7 +24,7 @@ Repository settings this relies on:
 1. Bump `version:` in `spotify_bridge/config.yaml` (for example `0.1.1`) and add an entry to `spotify_bridge/CHANGELOG.md` (HA shows it in the update dialog).
 2. Push to `bridge`. Wait until **Build images** is green for both architectures. The image tag is the version.
 3. In Home Assistant: Settings → Apps → Spotify Bridge → **Update**. HA pulls the image; nothing is compiled on the HA machine.
-4. For a release (not a `-dev` build), tag it: `git tag v0.1.1 && git push origin v0.1.1`, then create a GitHub release from the tag.
+4. For a release (not a `-dev` build), tag it `bridge-v<version>` and create a GitHub release from the tag: `gh release create bridge-v0.1.1 --target bridge --notes-file <notes>`. The `bridge-` prefix keeps the fork's tags apart from upstream's `v0.x.y` tags (upstream already has `v0.1.0` to `v0.19.0`).
 
 Never re-use a version number for different code. HA only pulls when the version changes.
 
