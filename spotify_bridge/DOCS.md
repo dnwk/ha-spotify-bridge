@@ -178,18 +178,10 @@ based on the following:
 
 ## Support
 
-Got questions?
-
-You have several options to get them answered:
-
-- The [Home Assistant Community Apps Discord chat server][discord] for app
-  support and feature requests.
-- The [Home Assistant Discord chat server][discord-ha] for general Home
-  Assistant discussions and questions.
-- The Home Assistant [Community Forum][forum].
-- Join the [Reddit subreddit][reddit] in [/r/homeassistant][reddit]
-
-You could also [open an issue here][issue] on GitHub.
+This is a personal fork. Please [open an issue here][issue] for problems with
+Spotify Bridge, not with the upstream Spotify Connect app or its community
+channels. For general Home Assistant questions, use the Home Assistant
+[Community Forum][forum].
 
 ## Authors & contributors
 
@@ -231,14 +223,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-[app-badge]: https://my.home-assistant.io/badges/supervisor_addon.svg
-[app]: https://my.home-assistant.io/redirect/supervisor_addon/?addon=a0d7b954_spotify&repository_url=https%3A%2F%2Fgithub.com%2Fhassio-addons%2Frepository
 [contributors]: https://github.com/hassio-addons/app-spotify-connect/graphs/contributors
-[discord-ha]: https://discord.gg/c5DvZ4e
-[discord]: https://discord.me/hassioaddons
-[forum]: https://community.home-assistant.io/t/home-assistant-community-add-on-spotify-connect/61210?u=frenck
+[forum]: https://community.home-assistant.io
 [frenck]: https://github.com/frenck
-[issue]: https://github.com/hassio-addons/app-spotify-connect/issues
-[reddit]: https://reddit.com/r/homeassistant
-[releases]: https://github.com/hassio-addons/app-spotify-connect/releases
+[issue]: https://github.com/dnwk/ha-spotify-bridge/issues
+[releases]: https://github.com/dnwk/ha-spotify-bridge/releases
 [semver]: https://semver.org/spec/v2.0.0.html
