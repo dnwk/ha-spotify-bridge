@@ -133,10 +133,13 @@ Goal: answer D1 and R1 before writing any code.
 
 ### Phase 5: Hardening and release (about 2 days)
 
-- [ ] GitHub Actions: lint (upstream's yamllint/hadolint/shellcheck + ruff/pytest), `home-assistant/builder` multi-arch → GHCR (private), with cargo caching (R7).
-- [ ] Soak test: 8 h playback, many device switches, MA restart and HA restart while playing.
-- [ ] DOCS.md: setup, pairing, limits (R4, R5), credits and licences.
-- [ ] Tag v0.1.0. Monthly upstream merge routine (R8).
+- [x] GitHub Actions (2026-11-12): `ci.yaml` (ruff + pytest on Linux/Python 3.14 + shellcheck; green on the first run) and `build.yaml` (native amd64 + aarch64 runners, no QEMU, layer cache in the Actions cache, R7) → `ghcr.io/dnwk/<arch>-spotify-bridge:<version>`. Plain `docker/build-push-action` instead of `home-assistant/builder`. Actions are allowed only for GitHub-owned + `docker/*`, so upstream's workflows on `main` cannot run.
+- [x] config.yaml `image:` → HA pulls prebuilt images (0.1.0-dev4).
+- [x] Upstream merge routine (R8): `upstream-sync.yaml` runs weekly (Mondays) instead of monthly: it fast-forwards `main` and opens a PR (or an issue on conflicts). Process in `docs/MAINTENANCE.md`. Default branch is now `bridge`.
+- [x] DOCS.md: setup, pairing, speaker choice, limits, delay per speaker type, third-party licences. `CHANGELOG.md` added.
+- [ ] GHCR packages public (needed for HA to pull without credentials).
+- [ ] Soak test: hours of playback, device switches, MA and HA restarts while playing, switching speaker mid-song (owner).
+- [ ] Tag v0.1.0 and create the GitHub release (after the soak test, owner OK).
 - Optional later: switch to go-librespot for two-way control (D3), and a `devices:` list (D4).
 
 ## Test environment
