@@ -28,6 +28,11 @@ _LOG_LEVELS = {
 log = logging.getLogger(__name__)
 
 
+def _opt_bool(options: dict[str, object], key: str, default: bool) -> bool:
+    value = options.get(key)
+    return value if isinstance(value, bool) else default
+
+
 def _opt_str(options: dict[str, object], key: str) -> str:
     value = options.get(key)
     return str(value).strip() if value is not None else ""
@@ -41,6 +46,8 @@ class Config:
     sendspin_name: str = ""
     pairing_code: str | None = None
     state_dir: str = DEFAULT_STATE_DIR
+    volume_sync: bool = True
+    speaker_select: bool = True
 
     @property
     def source_name(self) -> str:
@@ -63,6 +70,8 @@ class Config:
             sendspin_name=_opt_str(options, "sendspin_name"),
             pairing_code=code or None,
             state_dir=os.environ.get("SPOTIFY_BRIDGE_STATE_DIR", DEFAULT_STATE_DIR),
+            volume_sync=_opt_bool(options, "volume_sync", True),
+            speaker_select=_opt_bool(options, "speaker_select", True),
         )
 
 

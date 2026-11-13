@@ -71,6 +71,7 @@ class SendspinSource:
         self._requested = False
         self._paired = False
         self._window_opened_at: float | None = None
+        self.client_id: str | None = None
 
     # ----- called by the rest of the bridge -----
 
@@ -97,10 +98,16 @@ class SendspinSource:
     def streaming(self) -> bool:
         return self._capture is not None
 
+    @property
+    def source_uri(self) -> str | None:
+        """Music Assistant media id of this Live Input (known once ``run`` started)."""
+        return f"sendspin_source://audio_source/{self.client_id}" if self.client_id else None
+
     # ----- main loop -----
 
     async def run(self) -> None:
         identity = load_identity(self._state_dir)
+        self.client_id = identity.peer_id
         self._store = await FileClientPairingStore.open(self._state_dir / "pairings.json")
         await self._apply_static_code()
         self._paired = bool(await self._store.list_records())

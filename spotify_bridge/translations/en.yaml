@@ -41,3 +41,15 @@ configuration:
     description: >-
       Optional 8-digit code you type into Music Assistant when pairing. Leave
       empty to get a one-time 6-digit code as a Home Assistant notification.
+  volume_sync:
+    name: Spotify volume controls the speaker
+    description: >-
+      Moving the volume slider in the Spotify app sets the volume of the
+      speaker that plays it. The speaker's own volume is kept when you first
+      pick the device.
+  speaker_select:
+    name: Speaker select entity
+    description: >-
+      Adds a "Speaker" select entity (via MQTT) to choose where Spotify plays.
+      When a speaker is chosen there, set "Automatically play line-in on" to
+      Off in Music Assistant.

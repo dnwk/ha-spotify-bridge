@@ -35,12 +35,32 @@ The pairing is stored in the app's data, so it survives restarts and updates.
 To pair again, unpair in Music Assistant (player settings, advanced) while the
 app is running.
 
+## Choosing the speaker
+
+Two ways, pick one:
+
+- **In Music Assistant:** the input's setting **Automatically play line-in
+  on** decides where Spotify starts. Keep the **Speaker** entity (below) on
+  "Music Assistant setting".
+- **From Home Assistant:** the app adds a **Speaker** select entity (device
+  "Spotify Bridge (<name>)", via MQTT/Mosquitto) listing your Music Assistant
+  speakers and groups. Choose one there, from a dashboard or an automation.
+  The bridge starts Spotify on it when you press play, and moves it when you
+  change the selection mid-song. In this mode set **Automatically play
+  line-in on** to **Off** in Music Assistant, otherwise both start a speaker.
+
 ## Behaviour to know
 
+- **Delay:** sound comes out about 3-4 seconds after pressing play or pause in
+  Spotify (Music Assistant buffering plus the speaker's own buffer).
+- **Volume:** the Spotify volume slider sets the volume of the speaker that
+  plays it. When you first pick the device, the speaker keeps its own volume.
+  Changing the speaker volume elsewhere does not move the Spotify slider.
 - Pausing in Spotify keeps the speaker "playing silence" for 60 seconds, so a
   quick resume continues seamlessly; after that Music Assistant stops it.
 - Stopping the player in Music Assistant does not pause Spotify.
-- The Spotify volume slider does not change the speaker volume yet.
+- Music Assistant shows "Sendspin Source (Spotify (<name>))" instead of the
+  song title: the Sendspin source role carries audio only.
 
 ## Configuration
 
@@ -56,6 +76,8 @@ initial_volume: 50
 autoplay: true
 music_assistant_url: ws://localhost:8927/sendspin
 pairing_code: "12345678"
+volume_sync: true
+speaker_select: true
 ```
 
 **Note**: _This is just an example, don't copy and paste it! Create your own!_
@@ -117,6 +139,15 @@ Name of the Live Input in Music Assistant. Defaults to `Spotify (<name>)`.
 Optional fixed 8-digit code (for example `1234-5678`) to type into Music
 Assistant when pairing. Leave it empty to get a one-time code as a
 notification instead.
+
+### Option: `volume_sync`
+
+When on (default), the Spotify volume slider sets the speaker volume.
+
+### Option: `speaker_select`
+
+When on (default) and the Mosquitto broker app is installed, the app adds the
+**Speaker** select entity described above.
 
 ### Option: `access_token`
 

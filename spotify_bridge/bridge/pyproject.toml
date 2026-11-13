@@ -8,8 +8,9 @@ version = "0.0.1"
 description = "Bridges librespot (pipe backend) into Music Assistant as a Sendspin source"
 license = "MIT"
 requires-python = ">=3.12"
-# aiosendspin pulls in aiohttp, cryptography, zeroconf, orjson, mashumaro, noiseprotocol, cpace.
-dependencies = ["aiosendspin==10.3.0"]
+# aiosendspin pulls in aiohttp, cryptography, zeroconf, orjson, mashumaro, noiseprotocol, cpace;
+# aiomqtt pulls in paho-mqtt (Speaker select entity).
+dependencies = ["aiosendspin==10.3.0", "aiomqtt==2.5.1"]
 
 [project.scripts]
 spotify-bridge = "spotify_bridge.__main__:main"
