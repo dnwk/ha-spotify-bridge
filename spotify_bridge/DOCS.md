@@ -51,8 +51,9 @@ Two ways, pick one:
 
 ## Behaviour to know
 
-- **Delay:** sound comes out about 3-4 seconds after pressing play or pause in
-  Spotify (Music Assistant buffering plus the speaker's own buffer).
+- **Delay** after pressing play or pause in Spotify depends on the speaker:
+  about 3-4 seconds on Google Cast speakers (they buffer several seconds),
+  much shorter on native Sendspin speakers such as Home Assistant Voice PE.
 - **Volume:** the Spotify volume slider sets the volume of the speaker that
   plays it. When you first pick the device, the speaker keeps its own volume.
   Changing the speaker volume elsewhere does not move the Spotify slider.

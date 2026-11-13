@@ -148,3 +148,40 @@ Results from the Phase 0 checks in [PLAN.md](PLAN.md). Risk and decision IDs ref
 - A leftover MA queue item from the PC test ("Sendspin Source (Spotify Bridge live test)") was resumed from the MA/HA play button and played silence ("buffering" on the Nest Hub) until it was stopped. That's harmless, but **a test source's queue item outlives the device**. When removing a test device, also stop the players that used it.
 - librespot logged a `WARN … dealer … failure during data parsing for hm://collection/…`. It's unrelated to playback and is a known librespot quirk.
 - **Not measured yet:** end-to-end delay. Not done yet: volume sync (Phase 3).
+
+## Phase 3 + 4: volume sync and the Speaker select entity (0.1.0-dev3). **PASS** (2026-11-12)
+
+**Update on HA:** `store/reload` + update `dev → 0.1.0-dev3` took **30 s**. The app stayed paired, and MQTT connected with credentials from `GET /services/mqtt` (`services: [mqtt:want]`, no `hassio_api` needed).
+- Entity `select.spotify_bridge_home_assistant_speaker` (device "Spotify Bridge (Home Assistant)"). Options: Music Assistant setting + the **available** MA players (an unavailable one, GCC, was correctly left out).
+- MA source input "Automatically play line-in on" set to **Off** for selection mode, and Speaker = Living Room Display.
+
+**Robustness (no listener needed):**
+
+| Check | Result |
+|---|---|
+| App restart | Still paired. Log `Speaker selection restored: Living Room Display`, and the entity kept its state (the retained MQTT state is read before anything is published). |
+| Music Assistant restart (16:48:23) | Disconnected → retries at 2/4/8 s → **reconnected 16:48:37**, still paired, signal re-sent. During MA's restart GCC dropped out of the options (unavailable); options refresh every 60 s. |
+| `music_assistant.play_media` with `sendspin_source://audio_source/<client id>` | Starts the Live Input on any MA player. With no audio, MA stops it after about 5 s. |
+
+**Listening test (the owner, local time):**
+
+| Time | What happened |
+|---|---|
+| 16:52:49 | Play in Spotify → `Starting Spotify on media_player.living_room_display` (the bridge chose it, since MA auto-start is Off) → MA `source start` at 16:52:51 |
+| 16:53:04 – 16:53:30 | Volume slider drags → `Speaker volume set to 23% … 81% … 69%` on Living Room Display (debounced to a few steps per drag). **Heard by the owner.** |
+| 16:54:40 | Speaker selection changed to **Home Assistant Voice 09df2c** (Spotify was paused; Living Room Display had already stopped at 16:54:38) |
+| 16:54:46 | Play → `Starting Spotify on media_player.home_assistant_voice_09df2c`. **Heard by the owner.** |
+| 16:55:01 | Session reconnect reported volume 50% → ignored (grace); HA Voice stayed at 85% |
+
+**Delay depends on the speaker type** (the owner's observation):
+- Google Cast (Living Room Display, a Nest Hub): about **3–4 s**.
+- Native Sendspin (HA Voice PE): **much shorter**. MA streams directly with a small, synchronized buffer, while Cast devices buffer several seconds themselves.
+
+**Not covered yet:**
+- **Switching the speaker while music is playing** (the move + stop-old path in `Bridge._ensure_selected_speaker`). The owner's switch happened while paused.
+- Speaker **groups**: no MA sync group exists on the test HA.
+- A long soak (Phase 5).
+
+**Quirks seen:**
+- Saving the source's "Automatically play line-in on" setting in MA at 16:47 made Living Room Display start "playing" the source, with no Spotify and no `source start` reaching the bridge (silence). It was stopped by hand and did not recur. This is an MA behaviour when that setting changes.
+- The Sendspin `metadata` role is server→client only, so track info cannot reach MA from a source. Documented as a limitation.

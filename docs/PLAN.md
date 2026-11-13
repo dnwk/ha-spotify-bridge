@@ -117,15 +117,19 @@ Goal: answer D1 and R1 before writing any code.
 
 ### Phase 3: Volume, metadata, fallback path (about 2 days)
 
-- [ ] `ha.py`: find the MA player currently playing this source (MA entity attributes / `music_assistant.get_queue`). Mirror `volume_changed` (debounced) with `media_player.volume_set` (D6).
-- [ ] Metadata: send track title/artist/cover from `track_changed` env vars, if MA's source path accepts it (otherwise defer).
-- [ ] Path B `http_stream.py` + `output: media_player` option, for setups without MA.
-- [ ] Unit tests: event parsing, state machine, config.
+- [x] Volume sync (`volume.py`, `ha.py`): Spotify slider → `media_player.volume_set` on the MA player whose `media_content_id` is this source. Debounced 0.3 s, 3 s grace after a session starts. Verified by ear 2026-11-12.
+- [x] Metadata: **not possible.** The Sendspin `metadata` role is server→client; the source role carries audio + signal only. Documented.
+- [x] Delay: **3–4 s on Cast speakers, much shorter on native Sendspin speakers (HA Voice)**, from the owner's observation. Documented in DOCS.md.
+- [x] Robustness: app restart (pairing + speaker choice kept), MA restart (reconnect in 14 s).
+- [x] Versioning: `0.1.0-dev3`, so HA offers updates (30 s update on HA).
+- [x] Unit tests: volume, MA player filtering, speaker options, config (39 pass on Windows).
+- ~~Path B `http_stream.py` (HTTP fallback without MA)~~: **dropped from v1** (the owner uses MA; more delay, fewer features).
 
 ### Phase 4: HA speaker picker (about 1 day, optional for v1)
 
-- [ ] Confirm HA can start an MA AudioSource on a chosen player (open question 4).
-- [ ] Expose a `select.spotify_bridge_target` (via MQTT discovery, already available through Mosquitto) listing MA players. On change, move or start the Live Input on that player.
+- [x] HA can start the AudioSource on any MA player: `music_assistant.play_media` with `media_id = sendspin_source://audio_source/<client id>` (open question 4 answered).
+- [x] `select.spotify_bridge_home_assistant_speaker` via MQTT discovery (Mosquitto credentials from the Supervisor). Options are "Music Assistant setting" + the available MA players. The choice is retained over restarts. With a speaker chosen, the bridge starts Spotify there on play and moves it on change (MA's own auto-start must be Off). Verified by ear 2026-11-12: Living Room Display, then HA Voice.
+- [ ] Not yet verified: switching while playing (move + stop the old speaker), and MA sync groups.
 
 ### Phase 5: Hardening and release (about 2 days)
 
