@@ -197,3 +197,7 @@ The app on the test HA was updated from 0.1.0-dev3 (built on the VM) to 0.1.0-de
 | 19:32:05 | `Starting Docker app ghcr.io/dnwk/amd64-spotify-bridge with version 0.1.0-dev4` |
 
 The app's `build` flag is now false. The bridge log at 19:32:08 shows it was still paired, connected to MA at once, and restored the Speaker selection (HA Voice). The select entity lists the three MA speakers plus "Music Assistant setting".
+
+## 0.1.0 on the test HA (2026-11-12)
+
+Updated from 0.1.0-dev4 to 0.1.0 the same way (`store/reload`, then update, backup off) in under 5 s: the Supervisor downloaded `ghcr.io/dnwk/amd64-spotify-bridge:0.1.0` at 19:53:19, removed the dev4 image and started 0.1.0 at 19:53:23. The bridge was paired and connected to MA at 19:53:25 and restored the Speaker selection, with no warnings or errors in the log.

@@ -163,4 +163,4 @@ Goal: answer D1 and R1 before writing any code.
 
 ## Immediate next step
 
-0.1.0 is released. Next: update HA to 0.1.0, then the owner's soak test (including a speaker switch mid-song); fixes go into 0.1.1.
+0.1.0 is released and the test HA runs it (updated 2026-11-12 in under 5 s). Next: the owner's soak test (including a speaker switch mid-song); fixes go into 0.1.1.
